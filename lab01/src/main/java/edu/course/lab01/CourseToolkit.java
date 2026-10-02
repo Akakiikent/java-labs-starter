@@ -29,7 +29,23 @@ public final class CourseToolkit {
         return  true;
     }
 
+    public static boolean isPalindrome(String text){
+        if (text == null){
+            throw new IllegalArgumentException("str != 0");
+        }
+        int left = 0;
+        int right= text.length() - 1;
+        while (left < right){
+            if (text.charAt(left) != text.charAt(right)){
+                return false;
 
+            }
+            left = left +1;
+            right = right-1;
+
+        }
+        return true;
+    }
 
 
 }
