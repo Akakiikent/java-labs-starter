@@ -21,7 +21,7 @@ class CourseToolkitTest {
         assertFalse(result);
     }
     @Test
-    void isEven_shouldReturnTrueForZero() {
+    void isEven_shouldReturnTrue() {
         assertTrue(CourseToolkit.isEven(0));
     }
 }
