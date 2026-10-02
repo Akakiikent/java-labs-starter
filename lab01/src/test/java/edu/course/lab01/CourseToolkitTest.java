@@ -30,17 +30,28 @@ class CourseToolkitTest {
     void isPrime_false1(){
         assertFalse(CourseToolkit.isPrime(1));
     }
-
+    @Test
+    void IsPrime_false0(){
+        assertFalse(CourseToolkit.isPrime(0));
+    }
+    @Test
+    void isPrime_falsemin5(){
+        assertFalse(CourseToolkit.isPrime(-5));
+    }
+    @Test
+    void Isprime_true2(){
+        assertTrue(CourseToolkit.isPrime(2));
+    }
 
     @Test
-    void IsPrime_true2(){
-        assertTrue(CourseToolkit.isPrime(2));
+    void isPrime_true7(){
+        assertTrue(CourseToolkit.isPrime(7));
     }
     @Test
     void isPrime_false4(){
         assertFalse(CourseToolkit.isPrime(4));
     }
-    
+
     @Test
     void Isprime_false49(){
         assertFalse(CourseToolkit.isPrime(49));
