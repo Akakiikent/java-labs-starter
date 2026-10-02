@@ -82,6 +82,32 @@ class CourseToolkitTest {
     @Test
     void isPallindrome_throw0(){
         assertThrows(IllegalArgumentException.class, () -> CourseToolkit.isPalindrome(null));
-        
     }
+    @Test
+    void average_poltora(){
+        double result = CourseToolkit.average(new int [] {1, 2});
+    }
+    @Test
+    void average_minus(){
+        double result = CourseToolkit.average(new int [] {-1, -2});
+        assertTrue(result == -1.5);
+    }
+    @Test
+    void average_nemenaetsya(){
+        int[] values = {3, 1, 2};
+        CourseToolkit.average(values);
+        assertTrue(values[0] == 3);
+        assertTrue(values[1] == 1);
+        assertTrue(values[2] == 2);
+    }
+
+    @Test
+    void average_null(){
+        assertThrows(IllegalArgumentException.class, () -> CourseToolkit.average(null));
+    }
+    @Test
+    void average_throw0(){
+        assertThrows(IllegalArgumentException.class, () -> CourseToolkit.average(new int[0]));
+    }
+
 }
