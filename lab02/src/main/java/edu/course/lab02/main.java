@@ -179,7 +179,7 @@ class DataSample {
 
     public double[] getFeatures() {
         double[] copy = new double[features.length];
-        for (int i = 0; i < features.length; i++) {
+         for (int i = 0; i < features.length; i++) {
             copy[i] = features[i];
         }
         return copy;
