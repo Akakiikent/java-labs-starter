@@ -25,14 +25,14 @@ class TaskFileLoaderTest {
 
     private final TaskFileLoader loader = new TaskFileLoader();
 
-    private Path writeFile(String... lines) throws IOException {
+    private Path writeFile(String... lines) throws Exception {
         Path file = tempDir.resolve("tasks.csv");
         Files.write(file, List.of(lines), StandardCharsets.UTF_8);
         return file;
     }
 
     @Test
-    void loadsValidFile() throws IOException {
+    void loadsValidFile() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;Prepare release;backend;8;READY",
@@ -51,7 +51,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void readsCyrillicText() throws IOException {
+    void readsCyrillicText() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-201;Подготовить релиз;бэкенд;5;NEW");
@@ -64,7 +64,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void emptyFieldIsReportedWithLineAndFieldName() throws IOException {
+    void emptyFieldIsReportedWithLineAndFieldName() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;;backend;8;READY");
@@ -79,7 +79,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void invalidNumberIsReported() throws IOException {
+    void invalidNumberIsReported() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;Prepare release;backend;eight;READY");
@@ -93,7 +93,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void nonPositiveHoursAreRejected() throws IOException {
+    void nonPositiveHoursAreRejected() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;Prepare release;backend;0;READY",
@@ -108,7 +108,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void unknownStatusIsReported() throws IOException {
+    void unknownStatusIsReported() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;Prepare release;backend;8;ARCHIVED");
@@ -121,7 +121,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void wrongNumberOfColumnsIsReported() throws IOException {
+    void wrongNumberOfColumnsIsReported() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;Prepare release;backend;8",
@@ -138,7 +138,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void emptyLastFieldIsNotLostBySplit() throws IOException {
+    void emptyLastFieldIsNotLostBySplit() throws Exception {
         // в строке 5 полей, последнее пустое: ошибка должна быть про status, а не про число столбцов
         Path file = writeFile(
                 HEADER,
@@ -151,7 +151,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void validAndInvalidLinesAreProcessedTogether() throws IOException {
+    void validAndInvalidLinesAreProcessedTogether() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "T-101;Prepare release;backend;8;READY",
@@ -174,7 +174,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void blankLinesAreSkipped() throws IOException {
+    void blankLinesAreSkipped() throws Exception {
         Path file = writeFile(
                 HEADER,
                 "",
@@ -207,7 +207,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void invalidHeaderIsSourceError() throws IOException {
+    void invalidHeaderIsSourceError() throws Exception {
         Path file = writeFile(
                 "id;name;category;hours;status",
                 "T-101;Prepare release;backend;8;READY");
@@ -216,7 +216,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void emptyFileIsSourceError() throws IOException {
+    void emptyFileIsSourceError() throws Exception {
         Path file = tempDir.resolve("empty.csv");
         Files.write(file, new byte[0]);
 
@@ -224,7 +224,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void fileWithOnlyHeaderGivesEmptyResult() throws IOException {
+    void fileWithOnlyHeaderGivesEmptyResult() throws Exception {
         Path file = writeFile(HEADER);
 
         LoadResult result = loader.load(file);
@@ -234,7 +234,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void utf8BomBeforeHeaderIsAccepted() throws IOException {
+    void utf8BomBeforeHeaderIsAccepted() throws Exception {
         Path file = tempDir.resolve("bom.csv");
         String content = "﻿" + HEADER + "\nT-101;Prepare release;backend;8;READY\n";
         Files.write(file, content.getBytes(StandardCharsets.UTF_8));
@@ -246,7 +246,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void invalidUtf8BytesAreSourceError() throws IOException {
+    void invalidUtf8BytesAreSourceError() throws Exception {
         Path file = tempDir.resolve("broken.csv");
         Files.write(file, new byte[] {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD});
 
@@ -257,7 +257,7 @@ class TaskFileLoaderTest {
     }
 
     @Test
-    void resultListsCannotBeModified() throws IOException {
+    void resultListsCannotBeModified() throws Exception {
         Path file = writeFile(HEADER, "T-101;Prepare release;backend;8;READY");
         LoadResult result = loader.load(file);
 

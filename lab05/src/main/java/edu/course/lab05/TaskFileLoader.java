@@ -7,14 +7,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public final class TaskFileLoader {
 
     private static final String HEADER = "id;title;category;estimatedHours;status";
     private static final String DELIMITER = ";";
     private static final int COLUMNS = 5;
 
-    public LoadResult load(Path path) {
+    public LoadResult load(Path path) throws DataLoadingException {
         List<String> lines = readLines(path);
         checkHeader(path, lines);
 
@@ -24,14 +23,14 @@ public final class TaskFileLoader {
         for (int i = 1; i < lines.size(); i++) {
             String line = lines.get(i);
             if (line.isBlank()) {
-                continue; // пустые строки пропускаем
+                continue;
             }
             parseLine(i + 1, line, tasks, errors);
         }
         return new LoadResult(tasks, errors);
     }
 
-    private List<String> readLines(Path path) {
+    private List<String> readLines(Path path) throws DataLoadingException {
         try {
             return Files.readAllLines(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
@@ -40,7 +39,7 @@ public final class TaskFileLoader {
         }
     }
 
-    private void checkHeader(Path path, List<String> lines) {
+    private void checkHeader(Path path, List<String> lines) throws DataLoadingException {
         if (lines.isEmpty()) {
             throw new DataLoadingException("File is empty, header expected: " + path);
         }
@@ -84,13 +83,12 @@ public final class TaskFileLoader {
             return;
         }
 
-        int hours;
-        try {
-            hours = Integer.parseInt(hoursText);
-        } catch (NumberFormatException e) {
+        Integer parsedHours = parseInteger(hoursText);
+        if (parsedHours == null) {
             errors.add(new ValidationError(lineNumber, "estimatedHours", "not a number: '" + hoursText + "'"));
             return;
         }
+        int hours = parsedHours;
         if (hours <= 0) {
             errors.add(new ValidationError(lineNumber, "estimatedHours", "must be positive: " + hours));
             return;
@@ -100,15 +98,53 @@ public final class TaskFileLoader {
             errors.add(new ValidationError(lineNumber, "status", "must not be empty"));
             return;
         }
-        TaskStatus status;
-        try {
-            status = TaskStatus.valueOf(statusText);
-        } catch (IllegalArgumentException e) {
+        TaskStatus status = findStatus(statusText);
+        if (status == null) {
             errors.add(new ValidationError(lineNumber, "status", "unknown status: '" + statusText + "'"));
             return;
         }
 
-
         tasks.add(new ProjectTask(id, title, category, hours, status));
+    }
+
+
+    private static Integer parseInteger(String text) {
+        int start = 0;
+        boolean negative = false;
+        if (text.charAt(0) == '-' || text.charAt(0) == '+') {
+            negative = text.charAt(0) == '-';
+            start = 1;
+        }
+        if (start == text.length()) {
+            return null;
+        }
+
+        long value = 0;
+        for (int i = start; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c < '0' || c > '9') {
+                return null;
+            }
+            value = value * 10 + (c - '0');
+            if (value > (long) Integer.MAX_VALUE + 1) {
+                return null;
+            }
+        }
+        if (negative) {
+            value = -value;
+        }
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            return null;
+        }
+        return (int) value;
+    }
+
+    private static TaskStatus findStatus(String text) {
+        for (TaskStatus status : TaskStatus.values()) {
+            if (status.name().equals(text)) {
+                return status;
+            }
+        }
+        return null;
     }
 }
